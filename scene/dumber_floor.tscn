@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://dyo6ruw1nu4or"]
+
+[ext_resource type="PackedScene" uid="uid://c6ubex8xjnn4t" path="res://scene/dumb_floor.tscn" id="1_hmtu0"]
+
+[node name="dumber_floor" type="Node3D"]
+
+[node name="dumb_floor" parent="." instance=ExtResource("1_hmtu0")]

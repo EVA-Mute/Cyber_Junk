@@ -1,0 +1,20 @@
+[gd_scene load_steps=5 format=3 uid="uid://c6ubex8xjnn4t"]
+
+[ext_resource type="Texture2D" uid="uid://dofugo0b371a5" path="res://asset/Grid.png" id="1_klfin"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i0am5"]
+albedo_texture = ExtResource("1_klfin")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_pa8r8"]
+material = SubResource("StandardMaterial3D_i0am5")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_klfin"]
+size = Vector3(2, 0.001, 2)
+
+[node name="dumb_floor" type="MeshInstance3D"]
+mesh = SubResource("PlaneMesh_pa8r8")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+shape = SubResource("BoxShape3D_klfin")
