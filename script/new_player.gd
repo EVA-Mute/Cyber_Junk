@@ -1,4 +1,4 @@
-extends CharacterBody3D # 🍝
+extends CharacterBody3D
 
 enum player_state {PAUSED, GROUNDED, WALKING, SPRINTING, AIR, CROUCHED, SLIDE}
 var current_state: player_state = player_state.AIR
@@ -91,7 +91,6 @@ func _physics_process(delta: float) -> void:
 	if is_paused:
 		return
 	else: # open gate to continue _physics_process aka ALL of the func
-######################################################################################
 		speed = velocity.length()
 		#print(velocity.length())
 		
@@ -108,7 +107,6 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 
 func physics_input() -> void:
-	# ONLY FOR LEGIBILITY, can be placed where phisics_input is called and get rid of this overhead
 	input_vector = Input.get_vector("left", "right", "up", "down")
 	direction = (transform.basis * Vector3(input_vector.x, 0, input_vector.y)).normalized()
 	sprint_button = Input.is_action_pressed("sprint")
@@ -167,11 +165,11 @@ func handle_air_state(delta: float) -> void:
 		velocity.y = jump_velocity
 		slide_jump = false
 	elif velocity.y != 0.0:
-		var max = direction * -max_air_speed
+		var max_air_velocity = direction * -max_air_speed
 		if abs(velocity.x) >= max_air_speed:
-			velocity.x = lerp(velocity.x, max.x, delta * 0.3)
+			velocity.x = lerp(velocity.x, max_air_velocity.x, delta * 0.3)
 		if abs(velocity.z) >= max_air_speed:
-			velocity.z = lerp(velocity.z, max.z, delta * 0.3)
+			velocity.z = lerp(velocity.z, max_air_velocity.z, delta * 0.3)
 		var target_air_velocity = direction * max_air_speed
 		velocity.x = lerp(velocity.x, target_air_velocity.x, delta * air_control)
 		velocity.z = lerp(velocity.z, target_air_velocity.z, delta * air_control)
