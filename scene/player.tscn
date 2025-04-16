@@ -6,7 +6,7 @@
 
 [sub_resource type="Animation" id="Animation_xo3ru"]
 resource_name = "Crouch"
-length = 0.133337
+length = 0.100003
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -14,22 +14,10 @@ tracks/0/path = NodePath("head:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.133333),
+"times": PackedFloat32Array(0, 0.1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [Vector3(0, 0.5, 0), Vector3(0, 0, 0)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("CollisionShape3D:scale")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.133333),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector3(1, 1, 1), Vector3(0.75, 0.75, 0.75)]
 }
 
 [sub_resource type="Animation" id="Animation_ct4mp"]
@@ -80,26 +68,14 @@ length = 0.06667
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("CollisionShape3D:scale")
+tracks/0/path = NodePath("head:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.0666667),
-"transitions": PackedFloat32Array(1, 0.574349),
-"update": 0,
-"values": [Vector3(1, 1, 1), Vector3(0.5, 0.5, 0.5)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("head:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.0666667),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector3(0, 0.5, 0), Vector3(0, 0.25, 0)]
+"values": [Vector3(0, 0.5, 0), Vector3(0, 0, 0)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_fvtld"]
@@ -126,5 +102,7 @@ libraries = {
 &"": SubResource("AnimationLibrary_fvtld")
 }
 
-[node name="slide_cd" type="Timer" parent="."]
-one_shot = true
+[node name="stamina_timer" type="Timer" parent="."]
+autostart = true
+
+[connection signal="timeout" from="stamina_timer" to="." method="_on_stamina_timer_timeout"]

@@ -2,6 +2,8 @@ extends Camera3D
 
 @onready var debug_ui: Label = $UI_root/debug_ui
 @onready var head: Node3D = $"../player/head"
+@onready var player: CharacterBody3D = $"../player"
+@onready var player_speed: float = 0.0
 
 @export var rotation_smoothing: float = 30.0
 @export var position_smoothing: float = 30.0
@@ -13,7 +15,8 @@ func _ready():
 func _process(delta):
 	target = head.global_transform
 	var fps: = Engine.get_frames_per_second()
-	debug_ui.text = "FPS: " + str(fps)
+	player_speed = player.speed
+	debug_ui.text = "FPS: "+ str(fps) + "\nSpeed: " + str(player_speed)
 	global_transform.origin = global_transform.origin.lerp(target.origin, delta * position_smoothing)
 	
 	var current_basis = global_transform.basis
