@@ -1,0 +1,59 @@
+[gd_scene load_steps=5 format=3 uid="uid://d0aoutkerobqm"]
+
+[ext_resource type="Script" uid="uid://r2hu2ikif2p7" path="res://script/camera_control.gd" id="1_c8o8o"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_0ha60"]
+outline_size = 5
+outline_color = Color(0, 0, 0, 1)
+shadow_size = 0
+shadow_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4j5ol"]
+bg_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0ha60"]
+bg_color = Color(0.78, 0.44876, 0.0702, 1)
+
+[node name="scene_camera" type="Camera3D"]
+cull_mask = 524287
+fov = 80.0
+script = ExtResource("1_c8o8o")
+
+[node name="UI_root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+
+[node name="debug_ui" type="Label" parent="UI_root"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "line
+line"
+
+[node name="crosshair" type="Label" parent="UI_root"]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1280.0
+offset_bottom = 720.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "+"
+label_settings = SubResource("LabelSettings_0ha60")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="stamina_bar" type="ProgressBar" parent="UI_root"]
+layout_mode = 0
+offset_left = 548.0
+offset_top = 694.0
+offset_right = 728.0
+offset_bottom = 714.0
+scale = Vector2(0.44, 0.800005)
+pivot_offset = Vector2(90, 10)
+theme_override_styles/background = SubResource("StyleBoxFlat_4j5ol")
+theme_override_styles/fill = SubResource("StyleBoxFlat_0ha60")
+max_value = 2.0
+show_percentage = false

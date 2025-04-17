@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://cgcarq1wb1tr"]
+
+[ext_resource type="PackedScene" uid="uid://buf54i756e5py" path="res://asset/models/just_the_body_scaled.glb" id="1_b2jpi"]
+[ext_resource type="Script" uid="uid://cacmexxck4gnb" path="res://script/player_model_handler.gd" id="2_wm8hu"]
+
+[node name="body_handler" instance=ExtResource("1_b2jpi")]
+script = ExtResource("2_wm8hu")
+
+[node name="standard" parent="." index="0"]
+transform = Transform3D(-0.149037, 0, 1.30292e-08, 0, 0.149037, 0, -1.30292e-08, 0, -0.149037, 0, -0.455483, -0.00198893)

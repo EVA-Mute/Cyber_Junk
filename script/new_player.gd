@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-enum player_state {PAUSED, GROUNDED, WALKING, SPRINTING, AIR, CROUCHED, SLIDE}
+enum player_state {PAUSED, GROUNDED, WALKING, SPRINTING, AIR, CROUCHED, SLIDE, SLIDE_JUMP}
 var current_state: player_state = player_state.AIR
 var last_state: player_state
 var sprint_button: bool = false
@@ -9,6 +9,7 @@ var crouch_button: bool = false
 var can_slide: bool = true
 var can_dash: bool = false
 var slide_jump: bool = false
+var is_sliding: bool = false
 var is_jumping: bool = false
 var is_grounded: bool = false
 var is_paused: bool = false
@@ -24,15 +25,17 @@ var speed: float = 0.0
 @export var ground_acceleration: float = 10.0
 @export var sprint_acceleration: float = 6.0
 @export var max_air_speed: float = 20.0
-@export var air_drag: float = 10.0
 @export var max_slide_speed: float = 20.0
 @export var slide_accel: float = 2.0
+@export var fall_acceleration: float = 2.0
 
 @onready var head: Node3D =$head # super dope way to track camera, automatically smoothes animations that affect camera position
 @onready var animator: AnimationPlayer = $AnimationPlayer
 @onready var cam = get_node("/root/main/scene_camera")
+@onready var debug_cam = get_node("/root/main/debug_camera")
 @onready var stamina: ProgressBar = $"../scene_camera/UI_root/stamina_bar"
 @onready var stamina_time: Timer = $stamina_timer
+@onready var slide_cast: RayCast3D = $RayCast3D
 
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 var air_velocity: Vector2 = Vector2.ZERO
@@ -41,43 +44,46 @@ var direction: Vector3 = Vector3.ZERO
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	cam.current = true
+	debug_cam.current = false
+	var spawn: Node3D = $"../spawn_point"
+	position = Vector3(spawn.position.x, spawn.position.y + 3, spawn.position.z)
 
 func check_common_transitions():
 	if is_paused:
-		current_state = player_state.PAUSED
+		change_state(player_state.PAUSED)
 		print("pause trigger")
 		return
 	elif !is_on_floor():
-		current_state = player_state.AIR
+		change_state(player_state.AIR)
 		return
-	# SLIDE JUMP — must come first since it's a special case
+	# jump from slide
 	elif jump_button && current_state == player_state.SLIDE:
 		slide_jump = true
-		current_state = player_state.AIR
-	# GROUND-BASED JUMPING — from idle, walking, or sprinting
+		change_state(player_state.AIR)
+	# jump from idle, walking, or sprinting
 	elif jump_button && current_state in [player_state.GROUNDED, player_state.WALKING, player_state.SPRINTING]:
 		is_jumping = true
-		current_state = player_state.AIR
+		change_state(player_state.AIR)
 	# SLIDING — crouch + sprint condition (can_slide flag set by sprint)
-	elif crouch_button && speed > crouch_speed:
-		current_state = player_state.SLIDE
-	# CROUCHING
+	elif crouch_button && speed > crouch_speed + 1.0:
+		change_state(player_state.SLIDE)
 	elif crouch_button:
-		current_state = player_state.CROUCHED
-	# MOVEMENT — walking or sprinting
+		change_state(player_state.CROUCHED)
 	elif input_vector != Vector2.ZERO:
 		if sprint_button && !crouch_button:
-			current_state = player_state.SPRINTING
+			change_state(player_state.SPRINTING)
 		elif !crouch_button:
-			current_state = player_state.WALKING
+			change_state(player_state.WALKING)
 	# FALLBACK IDLE
 	elif input_vector == Vector2.ZERO and current_state != player_state.GROUNDED:
-		current_state = player_state.GROUNDED
+		change_state(player_state.GROUNDED)
 
 func _physics_process(delta: float) -> void:
 	if is_paused:
 		return
 	else: # open gate to continue _physics_process aka ALL of the func
+		var hori_speed = Vector3(velocity.x, 0.0,velocity.z).length()
 		speed = velocity.length()
 		
 		physics_input() # movement input, seperate function for legibility only
@@ -103,8 +109,13 @@ func physics_input() -> void:
 	dash = Input.is_action_just_pressed("dash")
 	is_paused = Input.is_action_just_pressed("pause")
 	if Input.is_action_just_pressed("debug"):
-		stamina.value = 0.0
-		stamina_time.start()
+		if cam.current == true:
+			cam.current = false
+			debug_cam.current = true
+		elif cam.current == false:
+			cam.current = true
+			debug_cam.current = false
+		
 	if Input.is_action_just_pressed("left click"):
 		shoot_hitscan()
 
@@ -170,9 +181,13 @@ func handle_sprint_state(delta: float) -> void:
 	velocity.x = lerp(velocity.x, target_velocity.x, delta * sprint_acceleration)
 	velocity.z = lerp(velocity.z, target_velocity.z, delta * sprint_acceleration)
 
+func handle_crouch_state(delta: float) -> void:
+		var target_velocity = direction * crouch_speed
+		velocity.x = lerp(velocity.x, target_velocity.x, delta * ground_acceleration)
+		velocity.z = lerp(velocity.z, target_velocity.z, delta * ground_acceleration)
+
 func handle_air_state(delta: float) -> void:
 	is_grounded = false
-	velocity.y -= gravity * delta
 	if is_jumping:
 		velocity.y = jump_velocity
 		is_jumping = false
@@ -180,19 +195,12 @@ func handle_air_state(delta: float) -> void:
 		velocity.y = jump_velocity
 		slide_jump = false
 	elif velocity.y != 0.0:
-		var max_air_velocity = direction * -max_air_speed
-		if abs(velocity.x) >= max_air_speed:
-			velocity.x = lerp(velocity.x, max_air_velocity.x, delta * 0.3)
-		if abs(velocity.z) >= max_air_speed:
-			velocity.z = lerp(velocity.z, max_air_velocity.z, delta * 0.3)
 		var target_air_velocity = direction * max_air_speed
 		velocity.x = lerp(velocity.x, target_air_velocity.x, delta * air_control)
 		velocity.z = lerp(velocity.z, target_air_velocity.z, delta * air_control)
-
-func handle_crouch_state(delta: float) -> void:
-		var target_velocity = direction * crouch_speed
-		velocity.x = lerp(velocity.x, target_velocity.x, delta * ground_acceleration)
-		velocity.z = lerp(velocity.z, target_velocity.z, delta * ground_acceleration)
+	var pre_velo = velocity.y
+	pre_velo -= gravity * fall_acceleration * delta
+	velocity.y = clampf(pre_velo, -max_air_speed * 2.0, max_air_speed * 2.0)
 
 func get_slope_direction() -> Vector3:
 	if is_on_floor():
@@ -201,32 +209,26 @@ func get_slope_direction() -> Vector3:
 		return slope
 	return Vector3.ZERO
 
-var slide_velocity: Vector3 = Vector3.ZERO
 @export var friction: float = 10.0
 func handle_slide_state(delta):
+	var slide_velocity: Vector3 = Vector3.ZERO
 	can_slide = false
 	slide_velocity = velocity
 	var slope_direction = get_slope_direction()
 	if slope_direction.length() > 0.01:
+		slide_cast.enabled = true
 		slope_direction = slope_direction.normalized()
 		var target_velocity = slope_direction * max_slide_speed
 		slide_velocity = slide_velocity.lerp(target_velocity, slide_accel * delta)
+		if slide_cast.is_colliding():
+			velocity.y = -max(abs(slide_velocity.x), abs(slide_velocity.z))
+		else: velocity.y = 0.0
 	else:
+		slide_cast.enabled = false
 		slide_velocity = slide_velocity.move_toward(Vector3.ZERO, friction * delta)
+	print(slope_direction)
 	velocity.x = slide_velocity.x
 	velocity.z = slide_velocity.z
-	var slide_launch: float = -max(abs(slide_velocity.x), abs(slide_velocity.z))
-	if speed <= max_air_speed: # NOTE Below
-		velocity.y = -max(abs(slide_velocity.x), abs(slide_velocity.z))
-	
-	else: pass
-	#the if statement slide_launch <= sprint_speed does nothing right now, if you make 
-	#sprint_speed negative then that conditional makes it so if you go a certain speed (sprint_speed)
-	#while sliding you will no longer stick to the floor and will be concidered 'launched'.
-	#this will be useful for when you want to launch yourself off of a ramp.
-	#example: if you change it to be abs(slide_launch) <= max_slide_speed - 1.0 (= 19.0) then when
-	#sliding if you reach the speed of max_slide_speed - 1, you will no longer be held to the floor
-	#and will be able to exit the ramp with velocity 
 
 func _on_stamina_timer_timeout() -> void:
 	if stamina.value < stamina.max_value:

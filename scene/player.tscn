@@ -89,7 +89,9 @@ _data = {
 [node name="player" type="CharacterBody3D"]
 script = ExtResource("1_xo3ru")
 jump_velocity = 30.0
-air_drag = 0.9
+
+[node name="RayCast3D" type="RayCast3D" parent="."]
+target_position = Vector3(0, -1.75, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_xo3ru")
@@ -104,5 +106,8 @@ libraries = {
 
 [node name="stamina_timer" type="Timer" parent="."]
 autostart = true
+
+[node name="body" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.165976, 0.253474)
 
 [connection signal="timeout" from="stamina_timer" to="." method="_on_stamina_timer_timeout"]

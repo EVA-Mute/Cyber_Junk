@@ -1,8 +1,13 @@
-[gd_scene load_steps=5 format=3 uid="uid://c6ubex8xjnn4t"]
+[gd_scene load_steps=6 format=3 uid="uid://c6ubex8xjnn4t"]
 
 [ext_resource type="Texture2D" uid="uid://dofugo0b371a5" path="res://asset/Grid.png" id="1_klfin"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_klfin"]
+blend_mode = 2
+albedo_color = Color(0.542481, 0.554688, 0.188507, 1)
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i0am5"]
+next_pass = SubResource("StandardMaterial3D_klfin")
 albedo_texture = ExtResource("1_klfin")
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_pa8r8"]
