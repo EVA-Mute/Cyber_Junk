@@ -75,8 +75,6 @@ material = SubResource("StandardMaterial3D_4j5ol")
 
 [node name="player" parent="." instance=ExtResource("2_v0l8b")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -2)
-walk_speed = 7.0
-jump_velocity = 10.0
 fall_acceleration = 0.6
 
 [node name="RayCast3D" parent="player" index="0"]

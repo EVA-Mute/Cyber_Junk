@@ -14,14 +14,13 @@ var is_jumping: bool = false
 var is_grounded: bool = false
 var is_paused: bool = false
 var dash: bool = false
-var speed: float = 0.0
+var jump_velocity: float = 7.0
 
 @export var aim_sens: = Vector2(0.2, 0.2)
-@export var walk_speed: float = 5.0
+@export var walk_speed: float = 7.0
 @export var sprint_speed: float = 10.0
 @export var crouch_speed: float = 3.75
-@export var air_control: float = 0.3
-@export var jump_velocity: float = 10.0
+@export var air_control: float = 0.6
 @export var ground_acceleration: float = 10.0
 @export var sprint_acceleration: float = 6.0
 @export var max_air_speed: float = 20.0
@@ -66,7 +65,7 @@ func check_common_transitions():
 		is_jumping = true
 		change_state(player_state.AIR)
 	# SLIDING — crouch + sprint condition (can_slide flag set by sprint)
-	elif crouch_button && speed > crouch_speed + 1.0:
+	elif crouch_button && velocity.length() > crouch_speed + 1.0:
 		change_state(player_state.SLIDE)
 	elif crouch_button:
 		change_state(player_state.CROUCHED)
@@ -83,8 +82,6 @@ func _physics_process(delta: float) -> void:
 	if is_paused:
 		return
 	else: # open gate to continue _physics_process aka ALL of the func
-		var hori_speed = Vector3(velocity.x, 0.0,velocity.z).length()
-		speed = velocity.length()
 		
 		physics_input() # movement input, seperate function for legibility only
 		check_common_transitions()

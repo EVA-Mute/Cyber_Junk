@@ -15,7 +15,7 @@ func _ready():
 func _process(delta):
 	target = head.global_transform
 	var fps: = Engine.get_frames_per_second()
-	player_speed = player.speed
+	player_speed = player.velocity.length()
 	debug_ui.text = "FPS: "+ str(fps) + "\nSpeed: " + str(player_speed)
 	global_transform.origin = global_transform.origin.lerp(target.origin, delta * position_smoothing)
 	

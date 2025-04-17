@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3 uid="uid://ciy7vl2r4n75i"]
 
-[ext_resource type="Script" uid="uid://br4typpdfdrxe" path="res://script/new_player.gd" id="1_xo3ru"]
+[ext_resource type="Script" uid="uid://br4typpdfdrxe" path="res://script/player.gd" id="1_xo3ru"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_xo3ru"]
 
@@ -88,7 +88,6 @@ _data = {
 
 [node name="player" type="CharacterBody3D"]
 script = ExtResource("1_xo3ru")
-jump_velocity = 30.0
 
 [node name="RayCast3D" type="RayCast3D" parent="."]
 target_position = Vector3(0, -1.75, 0)
